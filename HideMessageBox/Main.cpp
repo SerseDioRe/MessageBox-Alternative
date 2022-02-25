@@ -67,25 +67,24 @@ uintptr_t SignatureScan(const char* module, const char* pattern)
 
 int main()
 {
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
     HMODULE user32HMod = LoadLibraryA("user32.dll");
     uintptr_t user32Addr = (uintptr_t)GetModuleHandle(L"user32.dll");
     MessageBoxTimeoutW = (tMessageBoxTimeoutW)((uintptr_t)GetProcAddress(user32HMod, "MessageBoxTimeoutW"));
 
-    MessageBoxTimeoutW((__int64)0, (__int64)L"Hello Wolrd!", (__int64)L"SUCCESS", MB_ICONINFORMATION, 0, -1);
+    MessageBoxTimeoutW((__int64)0, (__int64)L"MessageBoxTimeoutW", (__int64)L"SUCCESS", MB_ICONINFORMATION, 0, -1);
 
     MessageBoxWorker = (tMessageBoxWorker)(SignatureScan("user32.dll", "48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 41 54 41 55 41 56 41 57 48 8D 6C 24 ?"));
 
-    _MSGBOXDATA test;
-    test.mbp.hwndOwner = 0;
-    test.mbp.hInstance = NULL;
-    test.mbp.lpszText = L"Hello World";
-    test.mbp.lpszCaption = L"Success";
-    test.mbp.dwStyle = MB_ICONINFORMATION;
-    test.mbp.lpszIcon = L"IDI_EXCLAMATION";
+    _MSGBOXDATA msgBoxData;
+    msgBoxData.mbp.hwndOwner = 0;
+    msgBoxData.mbp.hInstance = NULL;
+    msgBoxData.mbp.lpszText = L"MessageBoxWorker";
+    msgBoxData.mbp.lpszCaption = L"Success";
+    msgBoxData.mbp.dwStyle = MB_ICONINFORMATION;
+    msgBoxData.mbp.lpszIcon = L"IDI_EXCLAMATION";
     
-    MessageBoxWorker(&test);
-
-    std::cin.get();
+    MessageBoxWorker(&msgBoxData);
 
 	return EXIT_SUCCESS;
 }
