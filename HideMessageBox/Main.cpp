@@ -14,6 +14,9 @@ tMessageBoxTimeoutW MessageBoxTimeoutW = nullptr;
 typedef __int64(__fastcall* tMessageBoxWorker)(struct _MSGBOXDATA* a1);
 tMessageBoxWorker MessageBoxWorker = nullptr;
 
+typedef __int64(__fastcall* tGetProcAddressForCaller)(HMODULE, LPCSTR, __int64);
+tGetProcAddressForCaller GetProcAddressForCaller = nullptr;
+
 uintptr_t SignatureScan(const char* module, const char* pattern)
 {
     uintptr_t moduleAdress = 0;
@@ -67,10 +70,12 @@ uintptr_t SignatureScan(const char* module, const char* pattern)
 
 int main()
 {
-    ShowWindow(GetConsoleWindow(), SW_HIDE);
+    //ShowWindow(GetConsoleWindow(), SW_HIDE);
     HMODULE user32HMod = LoadLibraryA("user32.dll");
     uintptr_t user32Addr = (uintptr_t)GetModuleHandle(L"user32.dll");
-    MessageBoxTimeoutW = (tMessageBoxTimeoutW)((uintptr_t)GetProcAddress(user32HMod, "MessageBoxTimeoutW"));
+    GetProcAddressForCaller = (tGetProcAddressForCaller)(SignatureScan("kernel32.dll", "48 FF 25 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 55"));
+    void* retaddr = nullptr;
+    MessageBoxTimeoutW = (tMessageBoxTimeoutW)((uintptr_t)GetProcAddressForCaller(user32HMod, "MessageBoxTimeoutW", (__int64)retaddr));
 
     MessageBoxTimeoutW((__int64)0, (__int64)L"MessageBoxTimeoutW", (__int64)L"SUCCESS", MB_ICONINFORMATION, 0, -1);
 
@@ -85,6 +90,12 @@ int main()
     msgBoxData.mbp.lpszIcon = L"IDI_EXCLAMATION";
     
     MessageBoxWorker(&msgBoxData);
+
+    std::cout << std::hex << std::uppercase << "GetProcAddressForCaller 0x" << (uintptr_t)GetProcAddressForCaller << '\n';
+    std::cout << std::hex << std::uppercase << "MessageBoxTimeoutW 0x" << (uintptr_t)MessageBoxTimeoutW << '\n';
+    std::cout << std::hex << std::uppercase << "MessageBoxWorker 0x" << (uintptr_t)MessageBoxWorker << '\n';
+
+    std::cin.get();
 
 	return EXIT_SUCCESS;
 }
