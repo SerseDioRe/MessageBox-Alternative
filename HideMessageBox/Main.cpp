@@ -14,7 +14,7 @@ tMessageBoxTimeoutW MessageBoxTimeoutW = nullptr;
 typedef __int64(__fastcall* tMessageBoxWorker)(struct _MSGBOXDATA* a1);
 tMessageBoxWorker MessageBoxWorker = nullptr;
 
-typedef __int64(__fastcall* tGetProcAddressForCaller)(HMODULE, LPCSTR, __int64);
+typedef __int64(__fastcall* tGetProcAddressForCaller)(HMODULE, LPCSTR, void*);
 tGetProcAddressForCaller GetProcAddressForCaller = nullptr;
 
 uintptr_t SignatureScan(const char* module, const char* pattern)
@@ -75,7 +75,7 @@ int main()
     uintptr_t user32Addr = (uintptr_t)GetModuleHandle(L"user32.dll");
     GetProcAddressForCaller = (tGetProcAddressForCaller)(SignatureScan("kernel32.dll", "48 FF 25 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? 40 55"));
     void* retaddr = nullptr;
-    MessageBoxTimeoutW = (tMessageBoxTimeoutW)((uintptr_t)GetProcAddressForCaller(user32HMod, "MessageBoxTimeoutW", (__int64)retaddr));
+    MessageBoxTimeoutW = (tMessageBoxTimeoutW)((uintptr_t)GetProcAddressForCaller(user32HMod, "MessageBoxTimeoutW", retaddr));
 
     MessageBoxTimeoutW((__int64)0, (__int64)L"MessageBoxTimeoutW", (__int64)L"SUCCESS", MB_ICONINFORMATION, 0, -1);
 
